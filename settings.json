@@ -1,0 +1,11 @@
+{
+  "eslint.alwaysShowStatus": true,
+  "eslint.format.enable": true,
+  "eslint.debug": true,
+  "eslint.lintTask.enable": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "prettier.semi": false,
+  "prettier.singleQuote": true
+}

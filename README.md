@@ -15,5 +15,6 @@ List of things to implement:
 
 Run the project:
 ```
+npm install
 npx http-server
 ```
