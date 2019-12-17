@@ -45,12 +45,7 @@ const Scene = {
 
   render: () => {
     const vars = Scene.vars
-    // This allow for a smoother movement of the car
-    if (
-      vars.car !== undefined && // The car is defined
-      vars.keydowns.length > 0 && // There is at least one arrow being pressed
-      !vars.carIsMoving // The car is not already moving (event trigger inconsistency)
-    ) {
+    if (vars.car !== undefined && vars.keydowns.length > 0) {
       Scene.moveCar()
     }
 
@@ -75,7 +70,6 @@ const Scene = {
 
   // Adding the external objects
   addObjects: () => {
-    const vars = Scene.vars
     // Load the car
     Scene.loadOBJ(
       'car',
@@ -85,7 +79,6 @@ const Scene = {
       new THREE.Vector3(0, 0, 80),
       new THREE.Vector3(Math.PI / 2, Math.PI, 0)
     )
-    vars.carIsMoving = false
   },
 
   // Adding the lights
@@ -123,13 +116,11 @@ const Scene = {
   moveCar: () => {
     const vars = Scene.vars
 
-    vars.carIsMoving = true
-
     let speed = 0.0
     let angle = 0.0
     // left arrow pressed && right arrow not pressed
     if (vars.keydowns.indexOf(37) > -1 && vars.keydowns.indexOf(39) === -1) {
-      angle = Math.PI / 50
+      angle = Math.PI / 60
     }
     // up arrow pressed && down arrow not pressed
     if (vars.keydowns.indexOf(38) > -1 && vars.keydowns.indexOf(40) === -1) {
@@ -137,7 +128,7 @@ const Scene = {
     }
     // right arrow pressed && left arrow not pressed
     if (vars.keydowns.indexOf(39) > -1 && vars.keydowns.indexOf(37) === -1) {
-      angle = -Math.PI / 50
+      angle = -Math.PI / 60
     }
     // down arrow pressed && up arrow not pressed
     if (vars.keydowns.indexOf(40) > -1 && vars.keydowns.indexOf(38) === -1) {
@@ -150,8 +141,6 @@ const Scene = {
 
     vars.car.rotation.y += angle
     vars.car.translateZ(speed)
-
-    vars.carIsMoving = false
   },
 
   // Adding the EventListeners
@@ -184,7 +173,6 @@ const Scene = {
         if (vars.keydowns.indexOf(event.keyCode) === -1) {
           vars.keydowns.push(event.keyCode)
         }
-        Scene.moveCar()
       }
     },
 
