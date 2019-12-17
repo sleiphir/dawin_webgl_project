@@ -75,7 +75,7 @@ const Scene = {
       'car',
       '../assets/car.obj',
       '../assets/car_material.mtl',
-      0.05,
+      0.04,
       new THREE.Vector3(0, 0, 80),
       new THREE.Vector3(Math.PI / 2, Math.PI, 0)
     )
