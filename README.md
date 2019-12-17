@@ -11,7 +11,7 @@ List of things to implement:
 - <s>The sphere</s>
 - <s>loading the car</s>
 - <s>managing user input (probably arrow keys)</s>
-- find a way to get the car to rotate around the sphere ??
+- <s>find a way to get the car to rotate around the sphere ??</s>
 - add a on / off button on an overlay to disable the main light source so we can see the car's headlights
 
 Run the project:

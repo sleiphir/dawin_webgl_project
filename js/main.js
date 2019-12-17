@@ -56,12 +56,14 @@ const Scene = {
   addMeshes: () => {
     const vars = Scene.vars
     // Sphere
-    const sphereGeometry = new THREE.SphereGeometry(80, 64, 64)
+    const sphereGeometry = new THREE.SphereGeometry(75, 64, 64)
     const sphereMaterial = new THREE.MeshPhongMaterial({
       color: 0xffdc82,
       shading: THREE.FlatShading
     })
     const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
+    sphere.radius = 75
+    sphere.name = 'sphere'
     sphere.castShadow = true
     sphere.receiveShadow = false
     sphere.position.set(0, 0, 0)
@@ -70,14 +72,21 @@ const Scene = {
 
   // Adding the external objects
   addObjects: () => {
+    const vars = Scene.vars
+    const sphere = vars.scene.getObjectByName('sphere')
     // Load the car
     Scene.loadOBJ(
       'car',
-      '../assets/car.obj',
-      '../assets/car_material.mtl',
-      0.04,
-      new THREE.Vector3(0, 0, 80),
-      new THREE.Vector3(Math.PI / 2, Math.PI, 0)
+      '../assets/car.obj', // The car obj
+      '../assets/car_material.mtl', // The car material (that also contains its diffuse)
+      0.04, // Scale down the car by a lot (the default model was really big)
+      new THREE.Vector3(
+        sphere.position.x,
+        sphere.position.y,
+        sphere.position.z + sphere.radius
+      ), // Position the car on the middle of the sphere, on top of it
+      new THREE.Vector3(Math.PI / 2, Math.PI, 0), // Rotate the car to in order to drive on the wheels (it's safer)
+      sphere.position // Set the pivot at the center of the sphere (for easier rotation around it)
     )
   },
 
@@ -116,31 +125,38 @@ const Scene = {
   moveCar: () => {
     const vars = Scene.vars
 
-    let speed = 0.0
-    let angle = 0.0
+    let speed = 0.0 // Speed of the car in radian (because the car actually doesn't move, it just rotates with a displaced pivot)
+    let angle = 0.0 // Speed at which the car rotates on itself in radian
     // left arrow pressed && right arrow not pressed
     if (vars.keydowns.indexOf(37) > -1 && vars.keydowns.indexOf(39) === -1) {
-      angle = Math.PI / 60
+      angle = 0.08
     }
     // up arrow pressed && down arrow not pressed
     if (vars.keydowns.indexOf(38) > -1 && vars.keydowns.indexOf(40) === -1) {
-      speed = 1
+      speed = 0.05
     }
     // right arrow pressed && left arrow not pressed
     if (vars.keydowns.indexOf(39) > -1 && vars.keydowns.indexOf(37) === -1) {
-      angle = -Math.PI / 60
+      angle = -0.08
     }
     // down arrow pressed && up arrow not pressed
     if (vars.keydowns.indexOf(40) > -1 && vars.keydowns.indexOf(38) === -1) {
-      speed = -1
+      speed = -0.05
     }
     // if the car has no speed, it can't rotate
     if (speed === 0.0) {
       angle = 0.0
     }
 
-    vars.car.rotation.y += angle
-    vars.car.translateZ(speed)
+    // Inverse the direction of rotation when the car moves in reverse
+    if (speed < 0.0) {
+      angle *= -1
+    }
+
+    // rotate on the z axis to make the car rotate on itself
+    vars.car.rotation.z += angle
+    // rotate on the x axis using rotateOnAxis with the pivot set to the center of the sphere to turn around the sphere
+    vars.car.rotateOnAxis(new THREE.Vector3(-1, 0, 0), speed)
   },
 
   // Adding the EventListeners
@@ -187,7 +203,15 @@ const Scene = {
     }
   },
 
-  loadOBJ: (name, path, material, scale, position, rotation) => {
+  loadOBJ: (
+    name,
+    path,
+    material,
+    scale,
+    position,
+    rotation,
+    pivot = undefined
+  ) => {
     const vars = Scene.vars
 
     const loader = new OBJLoader()
@@ -199,14 +223,27 @@ const Scene = {
     loader.load(
       path,
       object => {
-        object.name = name
         object.scale.set(scale, scale, scale)
         object.position.set(position.x, position.y, position.z)
         object.rotation.set(rotation.x, rotation.y, rotation.z)
         object.castShadow = true
         object.receiveShadow = true
-        vars[name] = object
-        vars.scene.add(object)
+        /**
+         * Set the point of rotation of the object
+         * By default the point of rotation is at the center of the object
+         */
+        if (pivot !== undefined) {
+          const mesh = new THREE.Mesh()
+          mesh.position.set(pivot.x, pivot.y, pivot.z)
+          mesh.add(object)
+          mesh.name = name
+          vars[name] = mesh
+          vars.scene.add(mesh)
+        } else {
+          object.name = name
+          vars[name] = object
+          vars.scene.add(object)
+        }
       },
       undefined,
       error => {
