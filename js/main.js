@@ -45,6 +45,14 @@ const Scene = {
 
   render: () => {
     const vars = Scene.vars
+    // This allow for a smoother movement of the car
+    if (
+      vars.car !== undefined && // The car is defined
+      vars.keydowns.length > 0 && // There is at least one arrow being pressed
+      !vars.carIsMoving // The car is not already moving (event trigger inconsistency)
+    ) {
+      Scene.moveCar()
+    }
 
     vars.renderer.render(vars.scene, vars.camera)
   },
@@ -67,6 +75,7 @@ const Scene = {
 
   // Adding the external objects
   addObjects: () => {
+    const vars = Scene.vars
     // Load the car
     Scene.loadOBJ(
       'car',
@@ -74,8 +83,9 @@ const Scene = {
       '../assets/car_material.mtl',
       0.05,
       new THREE.Vector3(0, 0, 80),
-      new THREE.Vector3(Math.PI / 2, 0, 0)
+      new THREE.Vector3(Math.PI / 2, Math.PI, 0)
     )
+    vars.carIsMoving = false
   },
 
   // Adding the lights
@@ -110,6 +120,40 @@ const Scene = {
     vars.scene.add(directionalLight)
   },
 
+  moveCar: () => {
+    const vars = Scene.vars
+
+    vars.carIsMoving = true
+
+    let speed = 0.0
+    let angle = 0.0
+    // left arrow pressed && right arrow not pressed
+    if (vars.keydowns.indexOf(37) > -1 && vars.keydowns.indexOf(39) === -1) {
+      angle = Math.PI / 50
+    }
+    // up arrow pressed && down arrow not pressed
+    if (vars.keydowns.indexOf(38) > -1 && vars.keydowns.indexOf(40) === -1) {
+      speed = 1
+    }
+    // right arrow pressed && left arrow not pressed
+    if (vars.keydowns.indexOf(39) > -1 && vars.keydowns.indexOf(37) === -1) {
+      angle = -Math.PI / 50
+    }
+    // down arrow pressed && up arrow not pressed
+    if (vars.keydowns.indexOf(40) > -1 && vars.keydowns.indexOf(38) === -1) {
+      speed = -1
+    }
+    // if the car has no speed, it can't rotate
+    if (speed === 0.0) {
+      angle = 0.0
+    }
+
+    vars.car.rotation.y += angle
+    vars.car.translateZ(speed)
+
+    vars.carIsMoving = false
+  },
+
   // Adding the EventListeners
   addEventListeners: () => {
     window.addEventListener('resize', Scene.events.onWindowResize, false)
@@ -140,6 +184,7 @@ const Scene = {
         if (vars.keydowns.indexOf(event.keyCode) === -1) {
           vars.keydowns.push(event.keyCode)
         }
+        Scene.moveCar()
       }
     },
 
