@@ -71,22 +71,22 @@ const Scene = {
     const vars = Scene.vars
 
     // hemisphere light
-    const lightIntensityHemisphere = 1.0
+    const lightIntensityHemisphere = 0.7
     const light = new THREE.HemisphereLight(
-      0x72bce1,
-      0x444444,
+      0xffffff,
+      0xffffff,
       lightIntensityHemisphere
     )
     vars.scene.add(light)
 
     // directional light (lighting the sphere)
-    const directionalLightIntensity = 0.8
+    const directionalLightIntensity = 0.4
     const d = 1000
     const directionalLight = new THREE.DirectionalLight(
       0xffffff,
       directionalLightIntensity
     )
-    directionalLight.position.set(-200, 200, 200)
+    directionalLight.position.set(-100, 100, 200)
     directionalLight.castShadow = true
     directionalLight.shadow.camera.left = -d
     directionalLight.shadow.camera.right = d
