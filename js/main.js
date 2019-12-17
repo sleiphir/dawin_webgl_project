@@ -6,7 +6,8 @@ const Scene = {
   vars: {
     scene: null,
     camera: null,
-    renderer: null
+    renderer: null,
+    keydowns: [] // List of arrow keys currently being pressed
   },
 
   init: () => {
@@ -112,6 +113,8 @@ const Scene = {
   // Adding the EventListeners
   addEventListeners: () => {
     window.addEventListener('resize', Scene.events.onWindowResize, false)
+    window.addEventListener('keydown', Scene.events.onKeyDown, false)
+    window.addEventListener('keyup', Scene.events.onKeyUp, false)
   },
 
   // List of all the events
@@ -122,6 +125,32 @@ const Scene = {
       vars.camera.aspect = window.innerWidth / window.innerHeight
       vars.camera.updateProjectionMatrix()
       vars.renderer.setSize(window.innerWidth, window.innerHeight)
+    },
+
+    onKeyDown: event => {
+      const vars = Scene.vars
+      /** List of arrow key codes
+       * Left:  37
+       * Up:    38
+       * Right: 39
+       * Down:  40
+       */
+      // The key being pressed is an arrow
+      if ([37, 38, 39, 40].indexOf(event.keyCode) > -1) {
+        if (vars.keydowns.indexOf(event.keyCode) === -1) {
+          vars.keydowns.push(event.keyCode)
+        }
+      }
+    },
+
+    onKeyUp: () => {
+      const vars = Scene.vars
+      // The key being pressed is an arrow
+      if ([37, 38, 39, 40].indexOf(event.keyCode) > -1) {
+        vars.keydowns = vars.keydowns.filter(value => {
+          return value !== event.keyCode
+        })
+      }
     }
   },
 
