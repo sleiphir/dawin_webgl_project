@@ -19,6 +19,7 @@ const Scene = {
       0.1,
       1000
     )
+    vars.camera.position.set(0, 0, 200)
 
     vars.renderer = new THREE.WebGLRenderer({
       antialias: true
@@ -49,7 +50,18 @@ const Scene = {
   },
 
   // Adding the meshes
-  addMeshes: () => {},
+  addMeshes: () => {
+    const vars = Scene.vars
+    // Sphere
+    const sphereGeometry = new THREE.SphereGeometry(70, 64, 64)
+    const sphereMaterial = new THREE.MeshPhongMaterial({
+      flatShading: true,
+      color: 0xffdc82
+    })
+    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
+    sphere.position.set(0, 0, 0)
+    vars.scene.add(sphere)
+  },
 
   // Adding the external objects
   addObjects: () => {},
@@ -58,13 +70,32 @@ const Scene = {
   addLights: () => {
     const vars = Scene.vars
 
-    const lightIntensityHemisphere = 0.7
+    // hemisphere light
+    const lightIntensityHemisphere = 1.0
     const light = new THREE.HemisphereLight(
-      0xffffff,
+      0x72bce1,
       0x444444,
       lightIntensityHemisphere
     )
     vars.scene.add(light)
+
+    // directional light (lighting the sphere)
+    const directionalLightIntensity = 0.8
+    const d = 1000
+    const directionalLight = new THREE.DirectionalLight(
+      0xffffff,
+      directionalLightIntensity
+    )
+    directionalLight.position.set(-200, 200, 200)
+    directionalLight.castShadow = true
+    directionalLight.shadow.camera.left = -d
+    directionalLight.shadow.camera.right = d
+    directionalLight.shadow.camera.top = d
+    directionalLight.shadow.camera.bottom = -d
+    directionalLight.shadow.camera.far = 2000
+    directionalLight.shadow.mapSize.width = 4096
+    directionalLight.shadow.mapSize.height = 4096
+    vars.scene.add(directionalLight)
   },
 
   // Adding the EventListeners

@@ -8,7 +8,7 @@ Everything in a flat 3D design (maybe)
 List of things to implement:
 
 - <s>An empty scene</s>
-- The sphere
+- <s>The sphere</s>
 - loading the car
 - managing user input (probably arrow keys)
 - find a way to get the car to rotate around the sphere ??
