@@ -1,4 +1,6 @@
 import * as THREE from '../node_modules/three/build/three.module.js'
+import { OBJLoader } from '../node_modules/three/examples/jsm/loaders/OBJLoader.js'
+import { MTLLoader } from '../node_modules/three/examples/jsm/loaders/MTLLoader.js'
 
 const Scene = {
   vars: {
@@ -36,35 +38,44 @@ const Scene = {
   },
 
   animate: () => {
-    const vars = Scene.vars
-
     requestAnimationFrame(Scene.animate)
-    vars.renderer.render(vars.scene, vars.camera)
+    Scene.render()
   },
 
   render: () => {
     const vars = Scene.vars
 
     vars.renderer.render(vars.scene, vars.camera)
-    vars.stats.update()
   },
 
   // Adding the meshes
   addMeshes: () => {
     const vars = Scene.vars
     // Sphere
-    const sphereGeometry = new THREE.SphereGeometry(70, 64, 64)
+    const sphereGeometry = new THREE.SphereGeometry(80, 64, 64)
     const sphereMaterial = new THREE.MeshPhongMaterial({
-      flatShading: true,
-      color: 0xffdc82
+      color: 0xffdc82,
+      shading: THREE.FlatShading
     })
     const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
+    sphere.castShadow = true
+    sphere.receiveShadow = false
     sphere.position.set(0, 0, 0)
     vars.scene.add(sphere)
   },
 
   // Adding the external objects
-  addObjects: () => {},
+  addObjects: () => {
+    // Load the car
+    Scene.loadOBJ(
+      'car',
+      '../assets/car.obj',
+      '../assets/car_material.mtl',
+      0.05,
+      new THREE.Vector3(0, 0, 80),
+      new THREE.Vector3(Math.PI / 2, 0, 0)
+    )
+  },
 
   // Adding the lights
   addLights: () => {
@@ -112,6 +123,34 @@ const Scene = {
       vars.camera.updateProjectionMatrix()
       vars.renderer.setSize(window.innerWidth, window.innerHeight)
     }
+  },
+
+  loadOBJ: (name, path, material, scale, position, rotation) => {
+    const vars = Scene.vars
+
+    const loader = new OBJLoader()
+    if (material !== undefined) {
+      new MTLLoader().load(material, materials => {
+        loader.setMaterials(materials)
+      })
+    }
+    loader.load(
+      path,
+      object => {
+        object.name = name
+        object.scale.set(scale, scale, scale)
+        object.position.set(position.x, position.y, position.z)
+        object.rotation.set(rotation.x, rotation.y, rotation.z)
+        object.castShadow = true
+        object.receiveShadow = true
+        vars[name] = object
+        vars.scene.add(object)
+      },
+      undefined,
+      error => {
+        console.error(error)
+      }
+    )
   }
 }
 
