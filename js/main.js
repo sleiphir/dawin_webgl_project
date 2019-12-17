@@ -59,7 +59,7 @@ const Scene = {
     const sphereGeometry = new THREE.SphereGeometry(75, 64, 64)
     const sphereMaterial = new THREE.MeshPhongMaterial({
       color: 0xffdc82,
-      shading: THREE.FlatShading
+      flatShading: true
     })
     const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
     sphere.radius = 75
