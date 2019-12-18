@@ -27,7 +27,13 @@ body {
   margin-top: 10px;
 }
 
-#lightSwitch {
+.parameters > li > p {
+  color: white;
+  font-family: 'Arial', sans-serif;
+  font-size: 1.1em;
+}
+
+.button {
   padding: 4px;
   width: 88px;
   background: transparent;

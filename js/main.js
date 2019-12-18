@@ -7,7 +7,8 @@ const Scene = {
     scene: null,
     camera: null,
     renderer: null,
-    keydowns: [] // List of arrow keys currently being pressed
+    keydowns: [], // List of arrow keys currently being pressed
+    cameraLocked: false
   },
 
   init: () => {
@@ -48,8 +49,21 @@ const Scene = {
 
   render: () => {
     const vars = Scene.vars
-    if (vars.car !== undefined && vars.keydowns.length > 0) {
-      Scene.moveCar()
+    if (vars.car !== undefined) {
+      if (vars.keydowns.length > 0) {
+        Scene.moveCar()
+      }
+
+      if (vars.cameraLocked) {
+        vars.camera.position.copy(
+          vars.car.localToWorld(new THREE.Vector3(10, 10, 200))
+        )
+        vars.camera.lookAt(vars.car.position)
+        vars.camera.rotation.z = vars.car.rotation.z
+      } else {
+        vars.camera.position.set(0, 0, 200)
+        vars.camera.rotation.set(0, 0, 0)
+      }
     }
     if (vars.ufo !== undefined) {
       Scene.moveUFO()
@@ -99,16 +113,23 @@ const Scene = {
         const headlightsTarget = new THREE.Object3D()
         headlightsTarget.position.set(
           vars.car.children[0].position.x,
-          vars.car.children[0].position.y + 15,
-          vars.car.children[0].position.z
+          vars.car.children[0].position.y + 150,
+          vars.car.children[0].position.z - 10
         )
+        console.log(headlightsTarget.position)
         vars.car.add(headlightsTarget)
         // Create the headlights of the car as a SpotLight
-        const headlights = new THREE.SpotLight(0xfcf1b1, 1, 100, Math.PI / 4)
+        const headlights = new THREE.SpotLight(
+          0xfcf1b1,
+          1,
+          100,
+          Math.PI / 2,
+          0.4
+        )
         headlights.position.set(
           vars.car.children[0].position.x,
-          vars.car.children[0].position.y + 5.8,
-          vars.car.children[0].position.z + 7
+          vars.car.children[0].position.y + 5,
+          vars.car.children[0].position.z + 10
         )
         // Make the headlights target the Object3d created earlier
         headlights.target = headlightsTarget
@@ -132,7 +153,7 @@ const Scene = {
       new THREE.Vector3(
         sphere.position.x,
         sphere.position.y,
-        sphere.position.z + sphere.radius + 20
+        sphere.position.z + sphere.radius + 25
       ), // Position the car on the middle of the sphere, at a reasonable distance
       new THREE.Vector3(Math.PI / 2, Math.PI, 0),
       sphere.position, // Set the pivot to the center of the sphere (for easier rotation around it)
@@ -164,9 +185,13 @@ const Scene = {
     const vars = Scene.vars
 
     // Ambient light
-    const ambientLightIntensity = 0.3
-    const ambientLight = new THREE.PointLight(0xffffff, ambientLightIntensity)
-    ambientLight.position.set(0, 0, 190)
+    const ambientLightIntensity = 0.4
+    const ambientLight = new THREE.PointLight(
+      0xaaaaaa,
+      ambientLightIntensity,
+      0.0
+    )
+    ambientLight.position.set(0, 0, 200)
     ambientLight.name = 'ambientLight'
     // Add the PointLight to the camera so it sticks to it
     vars.camera.add(ambientLight)
@@ -179,7 +204,7 @@ const Scene = {
       directionalLightIntensity
     )
     directionalLight.name = 'directionalLight'
-    directionalLight.position.set(-100, 100, 200)
+    directionalLight.position.set(-50, 50, 200)
     // Tell the light to cast shadows and set the parameters
     directionalLight.castShadow = true
     directionalLight.shadow.camera.left = -d
@@ -246,6 +271,9 @@ const Scene = {
     document
       .getElementById('lightSwitch')
       .addEventListener('click', Scene.events.toggleLights, false)
+    document
+      .getElementById('cameraSwitch')
+      .addEventListener('click', Scene.events.toggleCamera, false)
   },
 
   // List of all the events
@@ -304,6 +332,13 @@ const Scene = {
       // Toggle the UFO's visibility
       vars.ufo.visible = !vars.ufo.visible
       e.target.innerHTML = e.target.innerHTML === 'DAY' ? 'NIGHT' : 'DAY'
+    },
+
+    toggleCamera: e => {
+      const vars = Scene.vars
+
+      vars.cameraLocked = !vars.cameraLocked
+      e.target.innerHTML = e.target.innerHTML === 'free' ? 'locked' : 'free'
     }
   },
 
