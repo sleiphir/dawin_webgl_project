@@ -5,18 +5,19 @@ Everything in a flat 3D design (maybe)
 
 ---
 
-List of things to implement:
+## List of things to implement
 
 - <s>An empty scene</s>
 - <s>The sphere</s>
 - <s>loading the car</s>
 - <s>managing user input (probably arrow keys)</s>
 - <s>find a way to get the car to rotate around the sphere ??</s>
-- add a on / off button on an overlay to disable the main light source so we can see the car's headlights
+- <s>add a on / off button on an overlay to disable the main light source so we can see the car's headlights</s>
+- Add an UFO orbiting around the sphere, visible during the night
 
-Run the project:
+## Commands
 
-```
+```bash
 npm install
 npx http-server
 ```

@@ -23,6 +23,7 @@ const Scene = {
       1000
     )
     vars.camera.position.set(0, 0, 200)
+    vars.scene.add(vars.camera)
 
     vars.renderer = new THREE.WebGLRenderer({
       antialias: true
@@ -60,7 +61,7 @@ const Scene = {
     // Sphere
     const sphereGeometry = new THREE.SphereGeometry(75, 64, 64)
     const sphereMaterial = new THREE.MeshPhongMaterial({
-      color: 0xffdc82,
+      color: 0xededed,
       flatShading: true
     })
     const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
@@ -88,7 +89,35 @@ const Scene = {
         sphere.position.z + sphere.radius
       ), // Position the car on the middle of the sphere, on top of it
       new THREE.Vector3(Math.PI / 2, Math.PI, 0), // Rotate the car in order to drive on the wheels (it's safer)
-      sphere.position // Set the pivot to the center of the sphere (for easier rotation around it)
+      sphere.position, // Set the pivot to the center of the sphere (for easier rotation around it)
+      // Callback (once the car has loaded)
+      () => {
+        // Create the headlights pointing direction
+        const headlightsTarget = new THREE.Object3D()
+        headlightsTarget.position.set(
+          vars.car.children[0].position.x,
+          vars.car.children[0].position.y + 15,
+          vars.car.children[0].position.z
+        )
+        vars.car.add(headlightsTarget)
+        // Create the headlights of the car as a SpotLight
+        const headlights = new THREE.SpotLight(0xfcf1b1, 1, 100, Math.PI / 4)
+        headlights.position.set(
+          vars.car.children[0].position.x,
+          vars.car.children[0].position.y + 4,
+          vars.car.children[0].position.z + 8
+        )
+        // Make the headlights target the Object3d created earlier
+        headlights.target = headlightsTarget
+        headlights.shadow.mapSize.width = 4096
+        headlights.shadow.mapSize.height = 4096
+        headlights.castShadow = true
+        // Add the headlights to the car group
+        vars.car.add(headlights)
+        vars.carHeadlights = headlights
+        // make it invisible as the scene start during the day
+        vars.carHeadlights.visible = false
+      }
     )
   },
 
@@ -96,15 +125,14 @@ const Scene = {
   addLights: () => {
     const vars = Scene.vars
 
-    // hemisphere light
-    const lightIntensityHemisphere = 0.5
-    const light = new THREE.HemisphereLight(
-      0xffffff,
-      0xffffff,
-      lightIntensityHemisphere
-    )
-    light.name = 'light'
-    vars.scene.add(light)
+    // Ambient light
+    const ambientLightIntensity = 0.3
+    const ambientLight = new THREE.PointLight(0xffffff, ambientLightIntensity)
+    ambientLight.position.set(0, 0, 190)
+    ambientLight.castShadow = true
+    ambientLight.name = 'ambientLight'
+    // Add the PointLight to the camera so it sticks to it
+    vars.camera.add(ambientLight)
 
     // directional light (pointed at the sphere)
     const directionalLightIntensity = 0.7
@@ -214,16 +242,20 @@ const Scene = {
       const vars = Scene.vars
 
       vars.scene.traverse(child => {
-        if (child.name.toLowerCase().includes('light')) {
+        if (child.name === 'directionalLight') {
+          // Toggle the visibility of the main source of ligthing
           child.visible = !child.visible
         }
       })
+      // Toggle the background color between blue & black
       vars.scene.background = vars.scene.background.equals(
         new THREE.Color(0x72bce1)
       )
         ? new THREE.Color(0x000000)
         : new THREE.Color(0x72bce1)
-      e.target.innerHTML = e.target.innerHTML === 'ON' ? 'OFF' : 'ON'
+      // Toggle car's headlights
+      vars.carHeadlights.visible = !vars.carHeadlights.visible
+      e.target.innerHTML = e.target.innerHTML === 'DAY' ? 'NIGHT' : 'DAY'
     }
   },
 
@@ -234,7 +266,8 @@ const Scene = {
     scale,
     position,
     rotation,
-    pivot = undefined
+    pivot = undefined,
+    callback = undefined
   ) => {
     const vars = Scene.vars
 
@@ -271,6 +304,9 @@ const Scene = {
           object.name = name
           vars[name] = object
           vars.scene.add(object)
+        }
+        if (callback !== undefined) {
+          callback()
         }
       },
       undefined,
