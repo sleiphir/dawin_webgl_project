@@ -27,6 +27,8 @@ const Scene = {
     vars.renderer = new THREE.WebGLRenderer({
       antialias: true
     })
+    vars.renderer.shadowMap.enabled = true
+    vars.renderer.shadowMap.type = THREE.PCFSoftShadowMap // Softer edges for the shadows
     vars.renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(vars.renderer.domElement)
 
@@ -65,7 +67,7 @@ const Scene = {
     sphere.radius = 75
     sphere.name = 'sphere'
     sphere.castShadow = true
-    sphere.receiveShadow = false
+    sphere.receiveShadow = true
     sphere.position.set(0, 0, 0)
     vars.scene.add(sphere)
   },
@@ -95,7 +97,7 @@ const Scene = {
     const vars = Scene.vars
 
     // hemisphere light
-    const lightIntensityHemisphere = 0.7
+    const lightIntensityHemisphere = 0.5
     const light = new THREE.HemisphereLight(
       0xffffff,
       0xffffff,
@@ -103,14 +105,15 @@ const Scene = {
     )
     vars.scene.add(light)
 
-    // directional light (lighting the sphere)
-    const directionalLightIntensity = 0.4
-    const d = 1000
+    // directional light (pointed at the sphere)
+    const directionalLightIntensity = 0.7
+    const d = 100
     const directionalLight = new THREE.DirectionalLight(
       0xffffff,
       directionalLightIntensity
     )
     directionalLight.position.set(-100, 100, 200)
+    // Tell the light to cast shadows and set the parameters
     directionalLight.castShadow = true
     directionalLight.shadow.camera.left = -d
     directionalLight.shadow.camera.right = d
@@ -226,8 +229,12 @@ const Scene = {
         object.scale.set(scale, scale, scale)
         object.position.set(position.x, position.y, position.z)
         object.rotation.set(rotation.x, rotation.y, rotation.z)
-        object.castShadow = true
-        object.receiveShadow = true
+        object.traverse(child => {
+          if (child.isMesh) {
+            child.castShadow = true
+            child.receiveShadow = true
+          }
+        })
         /**
          * Set the point of rotation of the object
          * By default the point of rotation is at the center of the object
