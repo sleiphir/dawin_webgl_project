@@ -49,6 +49,7 @@ const Scene = {
 
   render: () => {
     const vars = Scene.vars
+
     if (vars.car !== undefined) {
       if (vars.keydowns.length > 0) {
         Scene.moveCar()
@@ -56,10 +57,9 @@ const Scene = {
 
       if (vars.cameraLocked) {
         vars.camera.position.copy(
-          vars.car.localToWorld(new THREE.Vector3(10, 10, 200))
+          vars.car.localToWorld(new THREE.Vector3(0, 0, 200))
         )
         vars.camera.lookAt(vars.car.position)
-        vars.camera.rotation.z = vars.car.rotation.z
       } else {
         vars.camera.position.set(0, 0, 200)
         vars.camera.rotation.set(0, 0, 0)
@@ -68,6 +68,9 @@ const Scene = {
     if (vars.ufo !== undefined) {
       Scene.moveUFO()
     }
+    vars.sphere.rotation.y += 0.0005
+    vars.sphere.rotation.x += 0.0003
+    vars.sphere.rotation.z += 0.0006
 
     vars.renderer.render(vars.scene, vars.camera)
   },
@@ -75,11 +78,14 @@ const Scene = {
   // Adding the meshes
   addMeshes: () => {
     const vars = Scene.vars
+    const sphereTexture = new THREE.TextureLoader().load(
+      '../assets/sphereMaterial.jpg'
+    )
     // Sphere
-    const sphereGeometry = new THREE.SphereGeometry(95, 64, 64)
+    const sphereGeometry = new THREE.SphereGeometry(95, 128, 128)
     const sphereMaterial = new THREE.MeshPhongMaterial({
       color: 0xededed,
-      flatShading: true
+      map: sphereTexture
     })
     const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
     sphere.radius = 95
@@ -87,26 +93,28 @@ const Scene = {
     sphere.castShadow = true
     sphere.receiveShadow = true
     sphere.position.set(0, 0, 0)
+    sphere.rotation.z = Math.PI / 4
+    vars.sphere = sphere
     vars.scene.add(sphere)
   },
 
   // Adding the external objects
   addObjects: () => {
     const vars = Scene.vars
-    const sphere = vars.scene.getObjectByName('sphere')
+
     // Load the car
     Scene.loadOBJ(
       'car',
       '../assets/car/car.obj', // The car obj
-      '../assets/car/car_material.mtl', // The car material (that also contains its diffuse)
+      '../assets/car/car.mtl', // The car material properties
       0.05, // Scale down the car by a lot (the default model was really big)
       new THREE.Vector3(
-        sphere.position.x,
-        sphere.position.y,
-        sphere.position.z + sphere.radius
+        vars.sphere.position.x,
+        vars.sphere.position.y,
+        vars.sphere.position.z + vars.sphere.radius - 0.2
       ), // Position the car on the middle of the sphere, on top of it
       new THREE.Vector3(Math.PI / 2, Math.PI, 0), // Rotate the car in order to drive on the wheels (it's safer)
-      sphere.position, // Set the pivot to the center of the sphere (for easier rotation around it)
+      vars.sphere.position, // Set the pivot to the center of the sphere (for easier rotation around it)
       // Callback (once the car has loaded)
       () => {
         // Create the headlights pointing direction
@@ -116,7 +124,6 @@ const Scene = {
           vars.car.children[0].position.y + 150,
           vars.car.children[0].position.z - 10
         )
-        console.log(headlightsTarget.position)
         vars.car.add(headlightsTarget)
         // Create the headlights of the car as a SpotLight
         const headlights = new THREE.SpotLight(
@@ -141,6 +148,7 @@ const Scene = {
         vars.carHeadlights = headlights
         // make it invisible as the scene start during the day
         vars.carHeadlights.visible = false
+        vars.sphere.add(vars.car)
       }
     )
 
@@ -148,15 +156,15 @@ const Scene = {
     Scene.loadOBJ(
       'ufo',
       '../assets/ufo/ufo.obj',
-      '../assets/ufo/ufo_diffuse.mtl',
+      '../assets/ufo/ufo.mtl',
       0.3,
       new THREE.Vector3(
-        sphere.position.x,
-        sphere.position.y,
-        sphere.position.z + sphere.radius + 25
+        vars.sphere.position.x,
+        vars.sphere.position.y,
+        vars.sphere.position.z + vars.sphere.radius + 25
       ), // Position the car on the middle of the sphere, at a reasonable distance
       new THREE.Vector3(Math.PI / 2, Math.PI, 0),
-      sphere.position, // Set the pivot to the center of the sphere (for easier rotation around it)
+      vars.sphere.position, // Set the pivot to the center of the sphere (for easier rotation around it)
       // Callback (once the car has loaded)
       () => {
         const ufoSpotLight = new THREE.SpotLight(
@@ -224,19 +232,19 @@ const Scene = {
     let angle = 0.0 // Speed at which the car rotates on itself in radian
     // left arrow pressed && right arrow not pressed
     if (vars.keydowns.indexOf(37) > -1 && vars.keydowns.indexOf(39) === -1) {
-      angle = 0.08
+      angle = 0.07
     }
     // up arrow pressed && down arrow not pressed
     if (vars.keydowns.indexOf(38) > -1 && vars.keydowns.indexOf(40) === -1) {
-      speed = 0.04
+      speed = 0.03
     }
     // right arrow pressed && left arrow not pressed
     if (vars.keydowns.indexOf(39) > -1 && vars.keydowns.indexOf(37) === -1) {
-      angle = -0.08
+      angle = -0.07
     }
     // down arrow pressed && up arrow not pressed
     if (vars.keydowns.indexOf(40) > -1 && vars.keydowns.indexOf(38) === -1) {
-      speed = -0.04
+      speed = -0.03
     }
     // if the car has no speed, it can't rotate
     if (speed === 0.0) {
@@ -257,7 +265,7 @@ const Scene = {
   moveUFO: () => {
     const vars = Scene.vars
     const angle = 0.03
-    const speed = 0.005
+    const speed = 0.003
     vars.ufo.rotation.z += angle
     vars.ufo.rotation.y += speed
     vars.ufo.rotation.x += speed
@@ -331,14 +339,14 @@ const Scene = {
       vars.carHeadlights.visible = !vars.carHeadlights.visible
       // Toggle the UFO's visibility
       vars.ufo.visible = !vars.ufo.visible
-      e.target.innerHTML = e.target.innerHTML === 'DAY' ? 'NIGHT' : 'DAY'
+      e.target.innerHTML = e.target.innerHTML === 'day' ? 'night' : 'day'
     },
 
     toggleCamera: e => {
       const vars = Scene.vars
 
       vars.cameraLocked = !vars.cameraLocked
-      e.target.innerHTML = e.target.innerHTML === 'free' ? 'locked' : 'free'
+      e.target.innerHTML = e.target.innerHTML === 'locked' ? 'free' : 'locked'
     }
   },
 

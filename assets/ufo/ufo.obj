@@ -1,7 +1,7 @@
 # 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
 # File Created: 08.10.2016 14:55:50
 
-mtllib Low_poly_UFO.mtl
+mtllib ufo.mtl
 
 #
 # object UFO_body
