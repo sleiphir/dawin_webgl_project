@@ -87,8 +87,8 @@ const Scene = {
         sphere.position.y,
         sphere.position.z + sphere.radius
       ), // Position the car on the middle of the sphere, on top of it
-      new THREE.Vector3(Math.PI / 2, Math.PI, 0), // Rotate the car to in order to drive on the wheels (it's safer)
-      sphere.position // Set the pivot at the center of the sphere (for easier rotation around it)
+      new THREE.Vector3(Math.PI / 2, Math.PI, 0), // Rotate the car in order to drive on the wheels (it's safer)
+      sphere.position // Set the pivot to the center of the sphere (for easier rotation around it)
     )
   },
 
