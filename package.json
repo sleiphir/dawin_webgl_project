@@ -4,7 +4,7 @@
   "description": "see README.md",
   "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "start chrome http://localhost:8080 & npx http-server"
   },
   "repository": {
     "type": "git",
