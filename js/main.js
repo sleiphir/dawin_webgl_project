@@ -51,6 +51,9 @@ const Scene = {
     if (vars.car !== undefined && vars.keydowns.length > 0) {
       Scene.moveCar()
     }
+    if (vars.ufo !== undefined) {
+      Scene.moveUFO()
+    }
 
     vars.renderer.render(vars.scene, vars.camera)
   },
@@ -59,13 +62,13 @@ const Scene = {
   addMeshes: () => {
     const vars = Scene.vars
     // Sphere
-    const sphereGeometry = new THREE.SphereGeometry(75, 64, 64)
+    const sphereGeometry = new THREE.SphereGeometry(95, 64, 64)
     const sphereMaterial = new THREE.MeshPhongMaterial({
       color: 0xededed,
       flatShading: true
     })
     const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
-    sphere.radius = 75
+    sphere.radius = 95
     sphere.name = 'sphere'
     sphere.castShadow = true
     sphere.receiveShadow = true
@@ -80,9 +83,9 @@ const Scene = {
     // Load the car
     Scene.loadOBJ(
       'car',
-      '../assets/car.obj', // The car obj
-      '../assets/car_material.mtl', // The car material (that also contains its diffuse)
-      0.04, // Scale down the car by a lot (the default model was really big)
+      '../assets/car/car.obj', // The car obj
+      '../assets/car/car_material.mtl', // The car material (that also contains its diffuse)
+      0.05, // Scale down the car by a lot (the default model was really big)
       new THREE.Vector3(
         sphere.position.x,
         sphere.position.y,
@@ -104,8 +107,8 @@ const Scene = {
         const headlights = new THREE.SpotLight(0xfcf1b1, 1, 100, Math.PI / 4)
         headlights.position.set(
           vars.car.children[0].position.x,
-          vars.car.children[0].position.y + 4,
-          vars.car.children[0].position.z + 8
+          vars.car.children[0].position.y + 5.8,
+          vars.car.children[0].position.z + 7
         )
         // Make the headlights target the Object3d created earlier
         headlights.target = headlightsTarget
@@ -119,6 +122,41 @@ const Scene = {
         vars.carHeadlights.visible = false
       }
     )
+
+    // Load the UFO
+    Scene.loadOBJ(
+      'ufo',
+      '../assets/ufo/ufo.obj',
+      '../assets/ufo/ufo_diffuse.mtl',
+      0.3,
+      new THREE.Vector3(
+        sphere.position.x,
+        sphere.position.y,
+        sphere.position.z + sphere.radius + 20
+      ), // Position the car on the middle of the sphere, at a reasonable distance
+      new THREE.Vector3(Math.PI / 2, Math.PI, 0),
+      sphere.position, // Set the pivot to the center of the sphere (for easier rotation around it)
+      // Callback (once the car has loaded)
+      () => {
+        const ufoSpotLight = new THREE.SpotLight(
+          0xb3f542,
+          0.4,
+          100,
+          Math.PI / 4,
+          0.1
+        )
+        ufoSpotLight.position.set(
+          vars.ufo.children[0].position.x,
+          vars.ufo.children[0].position.y,
+          vars.ufo.children[0].position.z
+        )
+        ufoSpotLight.shadow.mapSize.width = 4096
+        ufoSpotLight.shadow.mapSize.height = 4096
+        ufoSpotLight.castShadow = true
+        vars.ufo.add(ufoSpotLight)
+        vars.ufo.visible = false
+      }
+    )
   },
 
   // Adding the lights
@@ -129,7 +167,6 @@ const Scene = {
     const ambientLightIntensity = 0.3
     const ambientLight = new THREE.PointLight(0xffffff, ambientLightIntensity)
     ambientLight.position.set(0, 0, 190)
-    ambientLight.castShadow = true
     ambientLight.name = 'ambientLight'
     // Add the PointLight to the camera so it sticks to it
     vars.camera.add(ambientLight)
@@ -166,7 +203,7 @@ const Scene = {
     }
     // up arrow pressed && down arrow not pressed
     if (vars.keydowns.indexOf(38) > -1 && vars.keydowns.indexOf(40) === -1) {
-      speed = 0.05
+      speed = 0.04
     }
     // right arrow pressed && left arrow not pressed
     if (vars.keydowns.indexOf(39) > -1 && vars.keydowns.indexOf(37) === -1) {
@@ -174,7 +211,7 @@ const Scene = {
     }
     // down arrow pressed && up arrow not pressed
     if (vars.keydowns.indexOf(40) > -1 && vars.keydowns.indexOf(38) === -1) {
-      speed = -0.05
+      speed = -0.04
     }
     // if the car has no speed, it can't rotate
     if (speed === 0.0) {
@@ -190,6 +227,15 @@ const Scene = {
     vars.car.rotation.z += angle
     // rotate on the x axis using rotateOnAxis with the pivot set to the center of the sphere to turn around the sphere
     vars.car.rotateOnAxis(new THREE.Vector3(-1, 0, 0), speed)
+  },
+
+  moveUFO: () => {
+    const vars = Scene.vars
+    const angle = 0.03
+    const speed = 0.005
+    vars.ufo.rotation.z += angle
+    vars.ufo.rotation.y += speed
+    vars.ufo.rotation.x += speed
   },
 
   // Adding the EventListeners
@@ -255,6 +301,8 @@ const Scene = {
         : new THREE.Color(0x72bce1)
       // Toggle car's headlights
       vars.carHeadlights.visible = !vars.carHeadlights.visible
+      // Toggle the UFO's visibility
+      vars.ufo.visible = !vars.ufo.visible
       e.target.innerHTML = e.target.innerHTML === 'DAY' ? 'NIGHT' : 'DAY'
     }
   },

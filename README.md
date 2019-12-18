@@ -13,7 +13,9 @@ Everything in a flat 3D design (maybe)
 - <s>managing user input (probably arrow keys)</s>
 - <s>find a way to get the car to rotate around the sphere ??</s>
 - <s>add a on / off button on an overlay to disable the main light source so we can see the car's headlights</s>
-- Add an UFO orbiting around the sphere, visible during the night
+- <s>Add an UFO orbiting around the sphere, visible during the night</s>
+- Add a button to lock the camera on top of the car
+- Add stars in the distance
 
 ## Commands
 
