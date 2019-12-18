@@ -1,5 +1,41 @@
 body {
-    margin: 0;
-    width: 100vw;
-    height: 100vh;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.overlay {
+  z-index: 1000;
+  position: absolute;
+  display: block;
+  width: 140px;
+  height: 100vh;
+  top: 0;
+  right: 0;
+}
+
+.element {
+  width: fit-content;
+}
+
+.element span {
+  margin: auto;
+  text-align: center;
+  color: white;
+  font-size: 1.4em;
+  font-family: 'Georgia', sans-serif;
+}
+
+#lightSwitch {
+  margin: auto;
+  margin-top: 20px;
+  margin-left: 10px;
+  padding: 5px 0;
+  width: 54px;
+  background: transparent;
+  border: 1px solid white;
+  color: white;
+  font-size: 1.2em;
+  cursor: pointer;
 }

@@ -103,6 +103,7 @@ const Scene = {
       0xffffff,
       lightIntensityHemisphere
     )
+    light.name = 'light'
     vars.scene.add(light)
 
     // directional light (pointed at the sphere)
@@ -112,6 +113,7 @@ const Scene = {
       0xffffff,
       directionalLightIntensity
     )
+    directionalLight.name = 'directionalLight'
     directionalLight.position.set(-100, 100, 200)
     // Tell the light to cast shadows and set the parameters
     directionalLight.castShadow = true
@@ -167,6 +169,9 @@ const Scene = {
     window.addEventListener('resize', Scene.events.onWindowResize, false)
     window.addEventListener('keydown', Scene.events.onKeyDown, false)
     window.addEventListener('keyup', Scene.events.onKeyUp, false)
+    document
+      .getElementById('lightSwitch')
+      .addEventListener('click', Scene.events.toggleLights, false)
   },
 
   // List of all the events
@@ -203,6 +208,22 @@ const Scene = {
           return value !== event.keyCode
         })
       }
+    },
+
+    toggleLights: e => {
+      const vars = Scene.vars
+
+      vars.scene.traverse(child => {
+        if (child.name.toLowerCase().includes('light')) {
+          child.visible = !child.visible
+        }
+      })
+      vars.scene.background = vars.scene.background.equals(
+        new THREE.Color(0x72bce1)
+      )
+        ? new THREE.Color(0x000000)
+        : new THREE.Color(0x72bce1)
+      e.target.innerHTML = e.target.innerHTML === 'ON' ? 'OFF' : 'ON'
     }
   },
 
