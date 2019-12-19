@@ -1,6 +1,7 @@
 import * as THREE from '../node_modules/three/build/three.module.js'
 import { OBJLoader } from '../node_modules/three/examples/jsm/loaders/OBJLoader.js'
 import { MTLLoader } from '../node_modules/three/examples/jsm/loaders/MTLLoader.js'
+import * as Utils from './utils.js'
 
 const Scene = {
   vars: {
@@ -24,7 +25,7 @@ const Scene = {
       75,
       window.innerWidth / window.innerHeight,
       0.1,
-      1000
+      5000
     )
     vars.camera.position.set(0, 0, 200)
     vars.scene.add(vars.camera)
@@ -118,6 +119,8 @@ const Scene = {
     sphere.position.set(0, 0, 0)
     vars.sphere = sphere
     vars.scene.add(sphere)
+
+    Scene.generateStars()
   },
 
   // Adding the external objects
@@ -247,6 +250,35 @@ const Scene = {
     vars.scene.add(directionalLight)
   },
 
+  generateStars: () => {
+    /**
+     * Stars generation
+     * Randomly create 1000 emissive sphere
+     * at a random distance min +-2000, max +-5000
+     */
+    const vars = Scene.vars
+    const stars = new THREE.Mesh()
+    let sphere, sphereGeometry, sphereMaterial
+    for (let i = 0; i < 1000; i++) {
+      sphereGeometry = new THREE.SphereGeometry(3, 6, 6)
+      sphereMaterial = new THREE.MeshStandardMaterial({
+        emissive: 0xffffff
+      })
+      sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
+      sphere.position.set(
+        Utils.getRandomArbitrary(-5000, 5000),
+        Utils.getRandomArbitrary(-5000, 5000),
+        Math.random() > 0.5
+          ? Utils.getRandomArbitrary(-5000, -200)
+          : Utils.getRandomArbitrary(200, 5000)
+      )
+      stars.add(sphere)
+    }
+    vars.scene.add(stars)
+    vars.stars = stars
+    stars.visible = false
+  },
+
   moveCar: () => {
     const vars = Scene.vars
 
@@ -364,6 +396,8 @@ const Scene = {
       vars.carHeadlights.visible = !vars.carHeadlights.visible
       // Toggle the UFO's visibility
       vars.ufo.visible = !vars.ufo.visible
+      // Toggle stars visibility
+      vars.stars.visible = !vars.stars.visible
       e.target.innerHTML = e.target.innerHTML === 'day' ? 'night' : 'day'
     },
 

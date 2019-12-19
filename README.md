@@ -15,7 +15,7 @@ Everything in a flat 3D design (maybe)
 - <s>add a on / off button on an overlay to disable the main light source so we can see the car's headlights</s>
 - <s>Add an UFO orbiting around the sphere, visible during the night</s>
 - <s>Add a button to lock the camera on top of the car</s>
-- Add stars in the distance
+- <s>Add stars in the distance</s>
 
 ## Commands
 
