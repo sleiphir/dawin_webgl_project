@@ -68,6 +68,7 @@ const Scene = {
     if (vars.ufo !== undefined) {
       Scene.moveUFO()
     }
+    // Makes the sphere rotate slowly
     vars.sphere.rotation.y += 0.0005
     vars.sphere.rotation.x += 0.0003
     vars.sphere.rotation.z += 0.0006
@@ -82,10 +83,11 @@ const Scene = {
       '../assets/sphereMaterial.jpg'
     )
     // Sphere
-    const sphereGeometry = new THREE.SphereGeometry(95, 128, 128)
+    const sphereGeometry = new THREE.SphereGeometry(95, 64, 64)
     const sphereMaterial = new THREE.MeshPhongMaterial({
       color: 0xededed,
-      map: sphereTexture
+      map: sphereTexture,
+      flatShading: true
     })
     const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
     sphere.radius = 95
