@@ -8,7 +8,10 @@ const Scene = {
     camera: null,
     renderer: null,
     keydowns: [], // List of arrow keys currently being pressed
-    cameraLocked: false
+    cameraLocked: false,
+    // frametime & lastFrame are used to get the same animation speed on any refresh rate
+    lastFrame: null,
+    frametime: null
   },
 
   init: () => {
@@ -50,6 +53,12 @@ const Scene = {
   render: () => {
     const vars = Scene.vars
 
+    // Get the correct animation speed
+    const time = Date.now()
+    // frametime represent the ms gap between each render
+    vars.frametime = time - vars.lastFrame
+    vars.lastFrame = time
+
     if (vars.car !== undefined) {
       if (vars.keydowns.length > 0) {
         Scene.moveCar()
@@ -68,10 +77,16 @@ const Scene = {
     if (vars.ufo !== undefined) {
       Scene.moveUFO()
     }
-    // Makes the sphere rotate slowly
-    vars.sphere.rotation.y += 0.0005
-    vars.sphere.rotation.x += 0.0003
-    vars.sphere.rotation.z += 0.0006
+
+    // Makes the sphere rotate slowly on it's local x, y axis
+    vars.sphere.rotateOnAxis(
+      new THREE.Vector3(1, 0, 0),
+      vars.frametime * 0.00005
+    )
+    vars.sphere.rotateOnAxis(
+      new THREE.Vector3(0, 1, 0),
+      vars.frametime * 0.000025
+    )
 
     vars.renderer.render(vars.scene, vars.camera)
   },
@@ -82,11 +97,17 @@ const Scene = {
     const sphereTexture = new THREE.TextureLoader().load(
       '../assets/sphereMaterial.jpg'
     )
+    const sphereRoughness = new THREE.TextureLoader().load(
+      '../assets/sphereRoughness.jpg'
+    )
     // Sphere
     const sphereGeometry = new THREE.SphereGeometry(95, 64, 64)
-    const sphereMaterial = new THREE.MeshPhongMaterial({
+    const sphereMaterial = new THREE.MeshStandardMaterial({
       color: 0xededed,
       map: sphereTexture,
+      roughness: 1,
+      roughnessMap: sphereRoughness,
+      bumpMap: sphereRoughness,
       flatShading: true
     })
     const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
@@ -95,7 +116,6 @@ const Scene = {
     sphere.castShadow = true
     sphere.receiveShadow = true
     sphere.position.set(0, 0, 0)
-    sphere.rotation.z = Math.PI / 4
     vars.sphere = sphere
     vars.scene.add(sphere)
   },
@@ -207,7 +227,7 @@ const Scene = {
     vars.camera.add(ambientLight)
 
     // directional light (pointed at the sphere)
-    const directionalLightIntensity = 0.7
+    const directionalLightIntensity = 1
     const d = 100
     const directionalLight = new THREE.DirectionalLight(
       0xffffff,
@@ -234,19 +254,19 @@ const Scene = {
     let angle = 0.0 // Speed at which the car rotates on itself in radian
     // left arrow pressed && right arrow not pressed
     if (vars.keydowns.indexOf(37) > -1 && vars.keydowns.indexOf(39) === -1) {
-      angle = 0.07
+      angle = 0.005
     }
     // up arrow pressed && down arrow not pressed
     if (vars.keydowns.indexOf(38) > -1 && vars.keydowns.indexOf(40) === -1) {
-      speed = 0.03
+      speed = 0.0015
     }
     // right arrow pressed && left arrow not pressed
     if (vars.keydowns.indexOf(39) > -1 && vars.keydowns.indexOf(37) === -1) {
-      angle = -0.07
+      angle = -0.005
     }
     // down arrow pressed && up arrow not pressed
     if (vars.keydowns.indexOf(40) > -1 && vars.keydowns.indexOf(38) === -1) {
-      speed = -0.03
+      speed = -0.0015
     }
     // if the car has no speed, it can't rotate
     if (speed === 0.0) {
@@ -258,6 +278,9 @@ const Scene = {
       angle *= -1
     }
 
+    speed = vars.frametime * speed
+    angle = vars.frametime * angle
+
     // rotate on the z axis to make the car rotate on itself
     vars.car.rotation.z += angle
     // rotate on the x axis using rotateOnAxis with the pivot set to the center of the sphere to turn around the sphere
@@ -266,8 +289,8 @@ const Scene = {
 
   moveUFO: () => {
     const vars = Scene.vars
-    const angle = 0.03
-    const speed = 0.003
+    const angle = vars.frametime * 0.003
+    const speed = vars.frametime * 0.0003
     vars.ufo.rotation.z += angle
     vars.ufo.rotation.y += speed
     vars.ufo.rotation.x += speed
