@@ -57,7 +57,11 @@ const Scene = {
     // Get the correct animation speed
     const time = Date.now()
     // frametime represent the ms gap between each render
-    vars.frametime = time - vars.lastFrame
+    if (vars.lastFrame !== null) {
+      vars.frametime = time - vars.lastFrame
+    } else {
+      vars.frametime = 0
+    }
     vars.lastFrame = time
 
     if (vars.car !== undefined) {
