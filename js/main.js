@@ -8,10 +8,14 @@ const Scene = {
     scene: null,
     camera: null,
     renderer: null,
-    keydowns: [], // List of arrow keys currently being pressed
+    // List of arrow keys currently being pressed
+    keydowns: [],
     cameraLocked: false,
     // frametime & lastFrame are used to get the same animation speed on any refresh rate
-    lastFrame: null,
+    lastFrame: Date.now(),
+    // keep the last 10 frame times to get a smoother animation
+    frametimes: [],
+    // used as the current frame time, mean value of the array frametimes
     frametime: null
   },
 
@@ -57,11 +61,19 @@ const Scene = {
     // Get the correct animation speed
     const time = Date.now()
     // frametime represent the ms gap between each render
-    if (vars.lastFrame !== null) {
-      vars.frametime = time - vars.lastFrame
-    } else {
-      vars.frametime = 0
+    vars.frametime = time - vars.lastFrame
+
+    // Add the current frame time to the array
+    vars.frametimes.push(vars.frametime)
+    /**
+     * Once the array has reached 10 it is shifted
+     * in order to only keep the last 10 frame times
+     */
+    if (vars.frametimes.length > 10) {
+      vars.frametimes.shift()
     }
+    // Set the current frame time to the average of the array
+    vars.frametime = Utils.getMeanArray(vars.frametimes)
     vars.lastFrame = time
 
     if (vars.car !== undefined) {
@@ -263,7 +275,7 @@ const Scene = {
     const vars = Scene.vars
     const stars = new THREE.Mesh()
     let sphere, sphereGeometry, sphereMaterial
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 2000; i++) {
       sphereGeometry = new THREE.SphereGeometry(3, 6, 6)
       sphereMaterial = new THREE.MeshStandardMaterial({
         emissive: 0xffffff
