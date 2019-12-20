@@ -6,7 +6,7 @@ body {
 }
 
 .overlay {
-  z-index: 1000;
+  z-index: 1;
   position: absolute;
   display: flex;
   width: 120px;
@@ -31,6 +31,33 @@ body {
   color: white;
   font-family: 'Arial', sans-serif;
   font-size: 1.1em;
+}
+
+.loader {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgb(41, 29, 150)
+}
+
+.loader.flex-content {
+  width: 200px;
+}
+
+.loader svg {
+  flex-wrap: wrap;
+}
+
+.loader p {
+  flex-wrap: wrap;
+  font-size: 3em;
+  font-family: "Arial", sans-serif;
+  text-align: center;
+  color:rgb(255, 247, 233)
 }
 
 .button {

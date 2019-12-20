@@ -47,6 +47,8 @@ const Scene = {
     Scene.addLights()
     Scene.addEventListeners()
 
+    document.getElementById('loader').style.display = 'none'
+
     Scene.animate()
   },
 
