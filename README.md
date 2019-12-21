@@ -8,7 +8,8 @@ Everything in a flat 3D design
 ## How does it works ?
 
 There isn't really a point, this is not a game, this is more of a showcase.
-You can drive around a sphere with a car using the arrow keys ⇓ ⇑ ⇐ ⇒ on your keyboard
+You can drive around a sphere with a car using the arrow keys ⇓ ⇑ ⇐ ⇒ on your keyboard.
+
 On the right-hand side there are 2 options available:
 
 * Time: Clicking on the button 'day' will toggle the scene to 'night' and you will be able to see stars in the sky as well as your car headlights.
