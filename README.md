@@ -12,7 +12,7 @@ You can drive around a sphere with a car using the arrow keys ⇓ ⇑ ⇐ ⇒ on
 
 On the right-hand side there are 2 options available:
 
-* Time: Clicking on the button 'day' will toggle the scene to 'night' and you will be able to see stars in the sky as well as your car headlights.
+* Time: Clicking on the button 'day' will toggle the scene to 'night' and you will be able to see stars in the sky as well as your car headlights and a UFO in orbit.
 * Camera: Clicking on the button 'free' will 'lock' the camera on top of your car so you can see where you're going at all time.
 
 The stars during the night are randomly generated and placed far from the planet, they are basically 2000 really tiny spheres that emit a white color.
