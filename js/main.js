@@ -1,4 +1,5 @@
 import * as THREE from '../node_modules/three/build/three.module.js'
+import { OrbitControls } from '../node_modules/three/examples/jsm/controls/OrbitControls.js'
 import { OBJLoader } from '../node_modules/three/examples/jsm/loaders/OBJLoader.js'
 import { MTLLoader } from '../node_modules/three/examples/jsm/loaders/MTLLoader.js'
 import * as Utils from './utils.js'
@@ -8,6 +9,7 @@ const Scene = {
     scene: null,
     camera: null,
     renderer: null,
+    controls: null,
     // List of arrow keys currently being pressed
     keydowns: [],
     cameraLocked: false,
@@ -42,6 +44,14 @@ const Scene = {
     vars.renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(vars.renderer.domElement)
 
+    vars.controls = new OrbitControls(vars.camera, vars.renderer.domElement)
+    // the keys are used to control the car already
+    vars.controls.enableKeys = false
+    // disable panning
+    vars.controls.mouseButtons.RIGHT = undefined
+    vars.controls.minDistance = 150
+    vars.controls.maxDistance = 500
+
     Scene.addMeshes()
     Scene.addObjects()
     Scene.addLights()
@@ -53,7 +63,10 @@ const Scene = {
   },
 
   animate: () => {
+    const vars = Scene.vars
+
     requestAnimationFrame(Scene.animate)
+    vars.controls.update()
     Scene.render()
   },
 
@@ -88,16 +101,13 @@ const Scene = {
           vars.car.localToWorld(new THREE.Vector3(0, 0, 200))
         )
         vars.camera.lookAt(vars.car.position)
-      } else {
-        vars.camera.position.set(0, 0, 200)
-        vars.camera.rotation.set(0, 0, 0)
       }
     }
     if (vars.ufo !== undefined) {
       Scene.moveUFO()
     }
 
-    // Makes the sphere rotate slowly on it's local x, y axis
+    // Makes the sphere rotate slowly on its local x, y axis
     vars.sphere.rotateOnAxis(
       new THREE.Vector3(1, 0, 0),
       vars.frametime * 0.00005
@@ -271,8 +281,8 @@ const Scene = {
   generateStars: () => {
     /**
      * Stars generation
-     * Randomly create 1000 emissive sphere
-     * at a random distance min +-2000, max +-5000
+     * Randomly create 2000 emissive sphere
+     * at a random distance min +-200, max +-5000
      */
     const vars = Scene.vars
     const stars = new THREE.Mesh()
@@ -357,6 +367,9 @@ const Scene = {
     document
       .getElementById('cameraSwitch')
       .addEventListener('click', Scene.events.toggleCamera, false)
+    document
+      .getElementById('closeWelcome')
+      .addEventListener('click', Scene.events.closeWelcome, false)
   },
 
   // List of all the events
@@ -382,6 +395,11 @@ const Scene = {
         if (vars.keydowns.indexOf(event.keyCode) === -1) {
           vars.keydowns.push(event.keyCode)
         }
+      }
+      // Auto close the small popup as the user has pressed a key
+      const closeWelcome = document.getElementById('closeWelcome')
+      if (closeWelcome !== null) {
+        closeWelcome.remove()
       }
     },
 
@@ -423,7 +441,12 @@ const Scene = {
       const vars = Scene.vars
 
       vars.cameraLocked = !vars.cameraLocked
-      e.target.innerHTML = e.target.innerHTML === 'locked' ? 'free' : 'locked'
+      vars.controls.enabled = !vars.controls.enabled
+      e.target.innerHTML = e.target.innerHTML === 'free' ? 'locked' : 'free'
+    },
+
+    closeWelcome: e => {
+      e.currentTarget.remove()
     }
   },
 
