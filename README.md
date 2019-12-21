@@ -15,8 +15,6 @@ On the right-hand side there are 2 options available:
 * Time: Clicking on the button 'day' will toggle the scene to 'night' and you will be able to see stars in the sky as well as your car headlights and a UFO in orbit.
 * Camera: Clicking on the button 'free' will 'lock' the camera on top of your car so you can see where you're going at all time.
 
-The stars during the night are randomly generated and placed far from the planet, they are basically 2000 really tiny spheres that emit a white color.
-
 ## My experience doing this project
 
 I got the idea of a car driving around a tiny planet from a YouTube video I saw over a year ago, it was a Unity tutorial about something I completely forgot and I wasn't able to find the video again, but the idea was there so I took it.
